@@ -29,7 +29,10 @@ struct RealityCheckView: View {
 
     private var prompt: some View {
         Group {
-            if input.isRecurring {
+            if input.isRecurring, let total = input.totalContributedLabel,
+               let periodLabel = input.paymentPeriodLabel {
+                Text("If you skip **\(input.itemName)** and save **\(input.amountLabel)** for **\(periodLabel)** (**\(total) total**), here is what that grows to if invested by **\(input.targetDateLabel)**:")
+            } else if input.isRecurring {
                 Text("If you skip **\(input.itemName)** and invest **\(input.amountLabel)** instead, here is what you'll have by **\(input.targetDateLabel)**:")
             } else {
                 Text("If you skip **\(input.itemName)** today and invest **\(input.amountLabel)**, here is what you'll have by **\(input.targetDateLabel)**:")
@@ -42,6 +45,7 @@ struct RealityCheckView: View {
 
     private func assetCard(for asset: AssetBenchmark) -> some View {
         let futureValue = CalculatorEngine.projectedValue(for: input, in: asset)
+        let contributed = CalculatorEngine.totalContributed(for: input)
 
         return VStack(spacing: 8) {
             HStack {
@@ -55,9 +59,33 @@ struct RealityCheckView: View {
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }
-            Text(futureValue.asCurrency)
-                .font(.system(size: 34, weight: .bold, design: .rounded))
-                .frame(maxWidth: .infinity, alignment: .leading)
+
+            if let contributed {
+                HStack(alignment: .firstTextBaseline, spacing: 12) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Out of pocket")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                        Text(contributed.asCurrency)
+                            .font(.title3.weight(.semibold))
+                    }
+                    Image(systemName: "arrow.right")
+                        .foregroundStyle(.secondary)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Invested value")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                        Text(futureValue.asCurrency)
+                            .font(.system(size: 28, weight: .bold, design: .rounded))
+                            .foregroundStyle(.green)
+                    }
+                    Spacer()
+                }
+            } else {
+                Text(futureValue.asCurrency)
+                    .font(.system(size: 34, weight: .bold, design: .rounded))
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
         }
         .padding()
         .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 16))

@@ -32,4 +32,28 @@ struct TemptationInput {
     var targetDateLabel: String {
         targetDate.formatted(date: .abbreviated, time: .omitted)
     }
+
+    var paymentPeriodCount: Int? {
+        guard isRecurring, let frequency else { return nil }
+        let years = CalculatorEngine.yearsBetween(from: .now, to: targetDate)
+        return CalculatorEngine.paymentPeriodCount(
+            years: years,
+            periodsPerYear: frequency.periodsPerYear
+        )
+    }
+
+    var paymentPeriodLabel: String? {
+        guard let count = paymentPeriodCount, let frequency else { return nil }
+        switch frequency {
+        case .monthly:
+            return "\(count) month\(count == 1 ? "" : "s")"
+        case .yearly:
+            return "\(count) year\(count == 1 ? "" : "s")"
+        }
+    }
+
+    var totalContributedLabel: String? {
+        guard let total = CalculatorEngine.totalContributed(for: self) else { return nil }
+        return total.asCurrency
+    }
 }

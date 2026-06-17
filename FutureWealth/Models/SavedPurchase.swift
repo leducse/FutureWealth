@@ -61,4 +61,9 @@ final class SavedPurchase {
         }
         return "in \(horizonYears) yrs"
     }
+
+    var totalContributedLabel: String? {
+        guard let total = CalculatorEngine.totalContributed(for: self) else { return nil }
+        return total.asCurrency
+    }
 }

@@ -104,9 +104,15 @@ struct DashboardView: View {
             }
             Spacer()
             VStack(alignment: .trailing, spacing: 4) {
-                Text(purchase.amountLabel)
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
+                if let total = purchase.totalContributedLabel {
+                    Text("\(purchase.amountLabel) · \(total) total")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                } else {
+                    Text(purchase.amountLabel)
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
                 Text("→ \(viewModel.projectedValue(for: purchase).asCurrency) \(purchase.horizonDisplayLabel)")
                     .font(.caption.weight(.semibold))
                     .foregroundStyle(.green)
